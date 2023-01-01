@@ -6,17 +6,23 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
-    var itemArray = [Item]()
+    //   Database Path
+    //let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    var itemArray = [Item]()
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        loadItems()
+        searchController.searchResultsUpdater = self
+        navigationItem.searchController = searchController
+        loadItems(willReloadTable: false)
     }
     
     //MARK: - TableView Datasourse
@@ -31,7 +37,6 @@ class TodoListViewController: UITableViewController {
         let item = itemArray[indexPath.row]
         cell.textLabel?.text = item.title
         cell.accessoryType = item.isDone ? .checkmark : .none
-        
         return cell
     }
     
@@ -48,8 +53,11 @@ class TodoListViewController: UITableViewController {
         
         let alert = UIAlertController(title: "Add new task", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
-            let newItem = Item()
+            
+            let newItem = Item(context: self.context)
+            
             newItem.title = textField.text!
+            newItem.isDone = false
             self.itemArray.append(newItem)
             self.saveItems()
 
@@ -66,26 +74,39 @@ class TodoListViewController: UITableViewController {
     //MARK: - Model Manipulating Methods
     
     func saveItems() {
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch {
-            print(error)
+            print("Error in saveItems func: \(error)")
         }
-        
         tableView.reloadData()
     }
     
-    func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print(error)
-            }
-            
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), willReloadTable: Bool = true) {
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error in loadItems func: \(error)")
+        }
+        if willReloadTable == true { tableView.reloadData() } else { return }
+    }
+}
+
+//MARK: - Searching Area
+
+extension TodoListViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text else { return }
+        if text.count >= 2 {
+            let request: NSFetchRequest<Item> = Item.fetchRequest()
+            let predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
+            request.predicate = predicate
+            let sortDiscriptor = NSSortDescriptor(key: "title", ascending: true)
+            request.sortDescriptors = [sortDiscriptor]
+            loadItems(with: request)
+        } else {
+            loadItems()
         }
     }
 }
