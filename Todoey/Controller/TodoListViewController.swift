@@ -14,6 +14,12 @@ class TodoListViewController: UITableViewController {
     //let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     var itemArray = [Item]()
+    var selectedCategory: Category? {
+        didSet {
+            loadItems()
+        }
+    }
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     let searchController = UISearchController(searchResultsController: nil)
@@ -22,7 +28,7 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
-        loadItems(willReloadTable: false)
+        navigationItem.hidesSearchBarWhenScrolling = false
     }
     
     //MARK: - TableView Datasourse
@@ -46,7 +52,7 @@ class TodoListViewController: UITableViewController {
         saveItems()
     }
     
-    //MARK: - Add new items
+    //MARK: - Add New Items
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
@@ -58,6 +64,7 @@ class TodoListViewController: UITableViewController {
             
             newItem.title = textField.text!
             newItem.isDone = false
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             self.saveItems()
 
@@ -82,13 +89,21 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), willReloadTable: Bool = true) {
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("Error in loadItems func: \(error)")
         }
-        if willReloadTable == true { tableView.reloadData() } else { return }
+        tableView.reloadData()
     }
 }
 
@@ -98,15 +113,16 @@ extension TodoListViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
-        if text.count >= 2 {
+        if text != "" {
             let request: NSFetchRequest<Item> = Item.fetchRequest()
             let predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
             request.predicate = predicate
             let sortDiscriptor = NSSortDescriptor(key: "title", ascending: true)
             request.sortDescriptors = [sortDiscriptor]
-            loadItems(with: request)
+            loadItems(with: request, predicate: predicate)
         } else {
             loadItems()
         }
     }
+    
 }
