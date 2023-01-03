@@ -61,7 +61,7 @@
             </objects>
             <point key="canvasLocation" x="565.64885496183206" y="-30.281690140845072"/>
         </scene>
-        <!--Todoey-->
+        <!--Categories-->
         <scene sceneID="jSv-ji-L7e">
             <objects>
                 <tableViewController id="Zdw-fd-oPt" customClass="CategoryViewController" customModule="Todoey" customModuleProvider="target" sceneMemberID="viewController">
@@ -84,7 +84,7 @@
                             <outlet property="delegate" destination="Zdw-fd-oPt" id="hgZ-LF-Won"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Todoey" id="uoI-15-KFK">
+                    <navigationItem key="navigationItem" title="Categories" id="uoI-15-KFK">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="OIe-Wg-ycu">
                             <connections>
                                 <action selector="addButtonPressed:" destination="Zdw-fd-oPt" id="7EY-2Z-MGn"/>
