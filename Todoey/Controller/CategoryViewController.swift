@@ -8,7 +8,8 @@
 import UIKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+
+class CategoryViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
@@ -17,7 +18,24 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+//        let appearance = UINavigationBarAppearance()
+//        appearance.configureWithOpaqueBackground()
+//        appearance.backgroundColor = UIColor.systemBlue
+//        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+//        navigationItem.standardAppearance = appearance
+//        navigationItem.scrollEdgeAppearance = appearance
+//        navigationItem.compactAppearance = appearance
+        
     }
+    
+//    override func viewDidAppear(_ animated: Bool) {
+//        for view in self.navigationController?.navigationBar.subviews ?? [] {
+//             let subviews = view.subviews
+//             if subviews.count > 0, let label = subviews[0] as? UILabel {
+//                 label.textColor = UIColor.white
+//             }
+//        }
+//    }
     
     //MARK: - TableView Datasourse Methods
     
@@ -26,12 +44,12 @@ class CategoryViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
         return cell
     }
     
-    //MARK: - TableView Delegate Methods
+    //MARK: - Segue Preparation
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
@@ -60,6 +78,19 @@ class CategoryViewController: UITableViewController {
     func loadCategories() {
         categories = realm.objects(Category.self)
         tableView.reloadData()
+    }
+    
+    //MARK: - Delete Data From Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+
+        if let categoryForDeletion = categories?[indexPath.row] {
+            do {
+                try realm.write {
+                    realm.delete(categoryForDeletion)
+                }
+            } catch { print("Error in updateModel func: \(error)") }
+        }
     }
     
     //MARK: - Add New Categories
