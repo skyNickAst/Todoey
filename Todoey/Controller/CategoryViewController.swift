@@ -18,24 +18,7 @@ class CategoryViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
-//        let appearance = UINavigationBarAppearance()
-//        appearance.configureWithOpaqueBackground()
-//        appearance.backgroundColor = UIColor.systemBlue
-//        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-//        navigationItem.standardAppearance = appearance
-//        navigationItem.scrollEdgeAppearance = appearance
-//        navigationItem.compactAppearance = appearance
-        
     }
-    
-//    override func viewDidAppear(_ animated: Bool) {
-//        for view in self.navigationController?.navigationBar.subviews ?? [] {
-//             let subviews = view.subviews
-//             if subviews.count > 0, let label = subviews[0] as? UILabel {
-//                 label.textColor = UIColor.white
-//             }
-//        }
-//    }
     
     //MARK: - TableView Datasourse Methods
     

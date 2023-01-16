@@ -13,6 +13,14 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 80
+//        let appearance = UINavigationBarAppearance()
+//        appearance.configureWithOpaqueBackground()
+//        appearance.backgroundColor = UIColor.systemPink
+//        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+//        appearance.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+//        navigationItem.standardAppearance = appearance
+//        navigationItem.scrollEdgeAppearance = appearance
+//        navigationItem.compactAppearance = appearance
     }
     
     //MARK: - TableView Datasourse Methods
